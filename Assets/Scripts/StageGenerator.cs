@@ -8,7 +8,13 @@ using UnityEngine;
 public class StageGenerator : MonoBehaviour
 {
     // キューブのプレハブ
+    [SerializeField]
     GameObject cubePrefab;
+    [SerializeField]
+    Transform cameraTransform;
+
+    public float visibleDistance = 50.0f;
+
     // ステージのサイズ
     public int width = 10; 
     public int height = 5;
@@ -34,14 +40,19 @@ public class StageGenerator : MonoBehaviour
     [SerializeField, Header("起伏の激しさ")]
     float relief = 1.0f;
 
+    private Camera mainCamera;
+
     void Start()
     {
+        caveNum = width / 10;
+        mainCamera = Camera.main;
         // 同じマップにならないようにシード値を生成
         seedX = Random.value * 100.0f;
         seedZ = Random.value * 100.0f;
 
         GenerateBaseMap();
         GenerateButtomOfMap();
+
     }
 
     /// <summary>
@@ -63,6 +74,7 @@ public class StageGenerator : MonoBehaviour
                 {              
                     // キューブを生成
                     GameObject cube = Instantiate(cubePrefab, new Vector3(x, yIndex, z), Quaternion.identity);
+                    cube.GetComponent<DistanceVisibility>().GetTargetTransform(cameraTransform, visibleDistance);
                     // 生成したキューブをこのスクリプトの子オブジェクトに設定
                     cube.transform.parent = transform;
                     SetCubeColorByHeight(cube, yIndex);
@@ -129,6 +141,7 @@ public class StageGenerator : MonoBehaviour
             {
                 // キューブを生成
                 GameObject cube = Instantiate(cubePrefab, new Vector3(x, -1, z), Quaternion.identity);
+                cube.GetComponent<DistanceVisibility>().GetTargetTransform(cameraTransform, visibleDistance);
                 // 生成したキューブをこのスクリプトの子オブジェクトに設定
                 cube.transform.parent = transform;
                 cube.GetComponent<MeshRenderer>().material.color = Color.black;
